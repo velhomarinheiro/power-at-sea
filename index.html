@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Power at Sea Atlas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Interactive dashboard of the Power at Sea naval power dataset v2.0 (Crisher & Souva), 1865–2025, in English, Portuguese and Spanish.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<a class="skip" href="#main" data-i18n="skip">Skip to content</a>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <a class="brand" href="#map" aria-label="Power at Sea">
+      <svg class="rose" viewBox="0 0 64 64" aria-hidden="true">
+        <circle cx="32" cy="32" r="29" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <circle cx="32" cy="32" r="22" fill="none" stroke="currentColor" stroke-width="0.75" stroke-dasharray="1.5 2.5"/>
+        <path d="M32 3 L36 28 L32 32 L28 28 Z" fill="var(--accent)"/>
+        <path d="M32 61 L28 36 L32 32 L36 36 Z" fill="currentColor"/>
+        <path d="M61 32 L36 36 L32 32 L36 28 Z" fill="currentColor"/>
+        <path d="M3 32 L28 28 L32 32 L28 36 Z" fill="currentColor"/>
+      </svg>
+      <span class="brand-text">
+        <span class="brand-title">Power at Sea</span>
+        <span class="brand-sub" data-i18n="brand_sub">Naval power dataset, v2.0 · 1865–2025</span>
+      </span>
+    </a>
+    <div class="masthead-tools">
+      <div class="seg" role="group" aria-label="Language" id="lang-group">
+        <button type="button" data-lang="en" lang="en">EN</button>
+        <button type="button" data-lang="pt" lang="pt">PT</button>
+        <button type="button" data-lang="es" lang="es">ES</button>
+      </div>
+      <button type="button" class="icon-btn" id="theme-btn" aria-label="Theme">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="currentColor"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="neatline" aria-hidden="true"></div>
+</header>
+
+<nav class="tabs" aria-label="Views">
+  <div class="tabs-inner" role="tablist" id="tablist">
+    <button role="tab" id="tab-map" data-tab="map" aria-controls="panel-map"></button>
+    <button role="tab" id="tab-ranking" data-tab="ranking" aria-controls="panel-ranking"></button>
+    <button role="tab" id="tab-evolution" data-tab="evolution" aria-controls="panel-evolution"></button>
+    <button role="tab" id="tab-compare" data-tab="compare" aria-controls="panel-compare"></button>
+    <button role="tab" id="tab-system" data-tab="system" aria-controls="panel-system"></button>
+    <button role="tab" id="tab-data" data-tab="data" aria-controls="panel-data"></button>
+  </div>
+</nav>
+
+<div class="wrap">
+  <section class="controls" aria-label="Filters">
+    <label class="ctl ctl-measure">
+      <span class="ctl-label" data-i18n="indicator">Indicator</span>
+      <select id="measure"></select>
+    </label>
+    <div class="ctl ctl-year">
+      <span class="ctl-label"><label for="year" data-i18n="year">Year</label></span>
+      <div class="year-row">
+        <button type="button" class="play" id="play" aria-label="Play">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-play" d="M7 4l13 8-13 8z" fill="currentColor"/><g class="i-pause" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></g></svg>
+        </button>
+        <input type="range" id="year" min="1865" max="2025" step="1" value="2025">
+        <output id="year-out" for="year">2025</output>
+      </div>
+    </div>
+    <label class="ctl ctl-region">
+      <span class="ctl-label" data-i18n="region">Region</span>
+      <select id="region"></select>
+    </label>
+  </section>
+
+  <section class="kpis" id="kpis" aria-live="polite"></section>
+
+  <main id="main">
+    <!-- MAP -->
+    <section class="panel" id="panel-map" role="tabpanel" aria-labelledby="tab-map">
+      <div class="split">
+        <figure class="card fig-map">
+          <figcaption class="fig-head">
+            <h2 id="map-title"></h2>
+            <p class="fig-sub" id="map-sub"></p>
+          </figcaption>
+          <div class="map-box" id="map"></div>
+          <div class="legend-row" id="map-legend"></div>
+          <p class="note" id="map-note"></p>
+        </figure>
+        <aside class="side">
+          <div class="card reading">
+            <h3 data-i18n="reading">Reading the year</h3>
+            <div id="reading-map"></div>
+          </div>
+          <div class="card">
+            <h3 data-i18n="top10">Top 10</h3>
+            <ol class="toplist" id="toplist"></ol>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- RANKING -->
+    <section class="panel" id="panel-ranking" role="tabpanel" aria-labelledby="tab-ranking" hidden>
+      <div class="split">
+        <figure class="card">
+          <figcaption class="fig-head">
+            <h2 id="rank-title"></h2>
+            <p class="fig-sub" id="rank-sub"></p>
+          </figcaption>
+          <div class="toolbar">
+            <span class="ctl-label" data-i18n="show">Show</span>
+            <div class="seg small" role="group" id="topn-group">
+              <button type="button" data-n="10"></button>
+              <button type="button" data-n="20"></button>
+              <button type="button" data-n="40"></button>
+            </div>
+          </div>
+          <div id="ranking"></div>
+        </figure>
+        <aside class="side">
+          <div class="card reading">
+            <h3 data-i18n="reading">Reading the year</h3>
+            <div id="reading-rank"></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- EVOLUTION -->
+    <section class="panel" id="panel-evolution" role="tabpanel" aria-labelledby="tab-evolution" hidden>
+      <figure class="card">
+        <figcaption class="fig-head">
+          <h2 id="evo-title"></h2>
+          <p class="fig-sub" id="evo-sub"></p>
+        </figcaption>
+        <div class="toolbar wrap-row">
+          <div class="chips" id="evo-chips" aria-label="Navies"></div>
+          <select id="evo-add" aria-label="Add"></select>
+        </div>
+        <div class="toolbar wrap-row">
+          <span class="ctl-label" data-i18n="presets">Presets</span>
+          <div class="presets" id="evo-presets"></div>
+        </div>
+        <div class="toolbar wrap-row">
+          <label class="check"><input type="checkbox" id="evo-log"> <span data-i18n="log_scale">Log scale</span></label>
+          <label class="inline"><span data-i18n="from">From</span> <input type="number" id="evo-from" min="1865" max="2025" value="1865"></label>
+          <label class="inline"><span data-i18n="to">To</span> <input type="number" id="evo-to" min="1865" max="2025" value="2025"></label>
+          <span class="hint" data-i18n="max_series">Up to 8 navies at a time.</span>
+        </div>
+        <div id="evolution" class="chart-box"></div>
+        <div class="legend-row" id="evo-legend"></div>
+      </figure>
+    </section>
+
+    <!-- COMPARE -->
+    <section class="panel" id="panel-compare" role="tabpanel" aria-labelledby="tab-compare" hidden>
+      <div class="compare-pick card">
+        <label class="ctl"><span class="ctl-label"><span class="swatch-a"></span><span data-i18n="compare_a">Navy A</span></span><select id="cmp-a"></select></label>
+        <span class="vs" data-i18n="vs">vs.</span>
+        <label class="ctl"><span class="ctl-label"><span class="swatch-b"></span><span data-i18n="compare_b">Navy B</span></span><select id="cmp-b"></select></label>
+      </div>
+      <div class="compare-grid">
+        <div class="card profile" id="cmp-profile-a"></div>
+        <div class="card profile" id="cmp-profile-b"></div>
+      </div>
+      <div class="compare-grid">
+        <figure class="card">
+          <figcaption class="fig-head"><h2 data-i18n="composition">Fleet composition</h2><p class="fig-sub" id="cmp-comp-sub"></p></figcaption>
+          <div id="cmp-butterfly"></div>
+        </figure>
+        <figure class="card">
+          <figcaption class="fig-head"><h2 id="cmp-line-title"></h2><p class="fig-sub" id="cmp-line-sub"></p></figcaption>
+          <div id="cmp-line" class="chart-box"></div>
+          <div class="legend-row" id="cmp-legend"></div>
+        </figure>
+      </div>
+    </section>
+
+    <!-- SYSTEM -->
+    <section class="panel" id="panel-system" role="tabpanel" aria-labelledby="tab-system" hidden>
+      <div class="sys-grid">
+        <figure class="card">
+          <figcaption class="fig-head"><h2 data-i18n="regional_share"></h2><p class="fig-sub" data-i18n="regional_note"></p></figcaption>
+          <div id="sys-region" class="chart-box"></div>
+          <div class="legend-row" id="sys-region-legend"></div>
+        </figure>
+        <figure class="card">
+          <figcaption class="fig-head"><h2 data-i18n="concentration"></h2><p class="fig-sub" data-i18n="concentration_note"></p></figcaption>
+          <div id="sys-conc" class="chart-box"></div>
+          <div class="legend-row" id="sys-conc-legend"></div>
+        </figure>
+        <figure class="card">
+          <figcaption class="fig-head"><h2 data-i18n="capital_ships"></h2><p class="fig-sub" data-i18n="capital_note"></p></figcaption>
+          <div id="sys-capital" class="chart-box"></div>
+          <div class="legend-row" id="sys-capital-legend"></div>
+        </figure>
+        <figure class="card">
+          <figcaption class="fig-head"><h2 data-i18n="big_ships"></h2><p class="fig-sub" data-i18n="big_note"></p></figcaption>
+          <div id="sys-big" class="chart-box"></div>
+          <div class="legend-row" id="sys-big-legend"></div>
+        </figure>
+        <figure class="card">
+          <figcaption class="fig-head"><h2 data-i18n="navies_count"></h2><p class="fig-sub" data-i18n="navies_count_note"></p></figcaption>
+          <div id="sys-count" class="chart-box"></div>
+        </figure>
+      </div>
+    </section>
+
+    <!-- DATA -->
+    <section class="panel" id="panel-data" role="tabpanel" aria-labelledby="tab-data" hidden>
+      <div class="card">
+        <div class="fig-head table-head">
+          <h2 id="table-title"></h2>
+          <input type="search" id="table-search" autocomplete="off">
+        </div>
+        <div class="table-scroll"><table class="data" id="table"></table></div>
+        <div class="downloads">
+          <a href="data/poweratsea_v2.csv" download id="dl-csv"></a>
+          <a href="data/source/poweratsea_v2_data_1865-2025.dta" download id="dl-dta"></a>
+          <a href="data/source/poweratsea_v2_appendix.pdf" id="dl-pdf"></a>
+        </div>
+      </div>
+      <div class="about-grid">
+        <div class="card prose">
+          <h2 data-i18n="method">About the data</h2>
+          <div id="method"></div>
+          <h3 data-i18n="cite">How to cite</h3>
+          <p class="cite" id="cite"></p>
+        </div>
+        <div class="card">
+          <h2 data-i18n="codebook">Codebook</h2>
+          <div class="table-scroll"><table class="data codebook" id="codebook"></table></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p id="foot-text"></p>
+  </footer>
+</div>
+
+<div class="tooltip" id="tooltip" role="status" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/world.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
