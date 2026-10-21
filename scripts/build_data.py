@@ -146,7 +146,7 @@ def main():
         countries.append(rec)
 
     out = {
-        "source": "Crisher, B. B. & Souva, M. Power at Sea dataset, version 2.0 (1865-2025)",
+        "source": "Crisher, Brian. 2026. Power at Sea 2.0. Harvard Dataverse. https://doi.org/10.7910/DVN/CW50N0",
         "years": [int(df.year.min()), int(df.year.max())],
         "fields": FIELDS,
         "countries": countries,

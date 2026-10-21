@@ -214,7 +214,7 @@
     $("#method").replaceChildren(...T().method_text.map((p) => el("p", { text: p })));
     renderCitations();
     $("#dl-doi").textContent = tr("dataverse");
-    $("#foot-text").replaceChildren("Crisher & Souva, Power at Sea v2.0 · ",
+    $("#foot-text").replaceChildren("Crisher (2026), Power at Sea 2.0 · ",
       el("a", { href: CITE.doi, target: "_blank", rel: "noopener", text: "doi:10.7910/DVN/CW50N0" }), ". " + tr("built_with"));
     $("#map-note").textContent = tr("map_note");
     // codebook

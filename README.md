@@ -1,8 +1,8 @@
 # Power at Sea Atlas
 
-Interactive dashboard for the **Power at Sea** naval power dataset, version 2.0 (Crisher & Souva), covering 80 navies from 1865 to 2025. The interface is available in **English, Português and Español**.
+Interactive dashboard for the **Power at Sea** naval power dataset, version 2.0 (Crisher 2026, building on Crisher & Souva 2014), covering 80 navies from 1865 to 2025. The interface is available in **English, Português and Español**.
 
-Painel interativo da base **Power at Sea** v2.0 (Crisher & Souva), com 80 marinhas de 1865 a 2025, em inglês, português e espanhol.
+Painel interativo da base **Power at Sea** v2.0 (Crisher 2026, a partir de Crisher & Souva 2014), com 80 marinhas de 1865 a 2025, em inglês, português e espanhol.
 
 ## Views
 
@@ -47,7 +47,7 @@ Country names (EN/PT/ES) and the mapping of historical states to modern map poly
 
 ## Citation
 
-Dataset v2.0: Crisher, Brian Benjamin; Souva, Mark. *Power at Sea, version 2.0 (1865–2025)* [dataset]. Harvard Dataverse. https://doi.org/10.7910/DVN/CW50N0
+Dataset v2.0: Crisher, Brian. 2026. “Power at Sea 2.0.” Harvard Dataverse. https://doi.org/10.7910/DVN/CW50N0.
 
 Original article: Crisher, Brian Benjamin, and Mark Souva. 2014. "Power at Sea: A Naval Power Dataset, 1865–2011." *International Interactions* 40(4): 602–629.
 

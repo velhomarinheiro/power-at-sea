@@ -420,6 +420,6 @@ window.PAS_CODEBOOK = [
 /* References (same text in every language) */
 window.PAS_CITE = {
   doi: "https://doi.org/10.7910/DVN/CW50N0",
-  v2: "Crisher, Brian Benjamin; Souva, Mark. Power at Sea, version 2.0 (1865–2025) [dataset]. Harvard Dataverse. https://doi.org/10.7910/DVN/CW50N0",
+  v2: "Crisher, Brian. 2026. “Power at Sea 2.0.” Harvard Dataverse. https://doi.org/10.7910/DVN/CW50N0.",
   v1: "Crisher, Brian Benjamin, and Mark Souva. 2014. “Power at Sea: A Naval Power Dataset, 1865–2011.” International Interactions 40(4): 602–629.",
 };
