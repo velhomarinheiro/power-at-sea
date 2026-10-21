@@ -148,6 +148,7 @@
           <div class="presets" id="evo-presets"></div>
         </div>
         <div class="toolbar wrap-row">
+          <div class="ctl mode-ctl"><span class="ctl-label" data-i18n="mode_label">Show as</span><div class="seg small mode-group" role="group"><button type="button" data-mode="abs"></button><button type="button" data-mode="pct"></button></div></div>
           <label class="check"><input type="checkbox" id="evo-log"> <span data-i18n="log_scale">Log scale</span></label>
           <label class="inline"><span data-i18n="from">From</span> <input type="number" id="evo-from" min="1865" max="2025" value="1865"></label>
           <label class="inline"><span data-i18n="to">To</span> <input type="number" id="evo-to" min="1865" max="2025" value="2025"></label>
@@ -164,11 +165,18 @@
         <label class="ctl"><span class="ctl-label"><span class="swatch-a"></span><span data-i18n="compare_a">Navy A</span></span><select id="cmp-a"></select></label>
         <span class="vs" data-i18n="vs">vs.</span>
         <label class="ctl"><span class="ctl-label"><span class="swatch-b"></span><span data-i18n="compare_b">Navy B</span></span><select id="cmp-b"></select></label>
+        <div class="ctl mode-ctl"><span class="ctl-label" data-i18n="mode_label">Show as</span><div class="seg small mode-group" role="group"><button type="button" data-mode="abs"></button><button type="button" data-mode="pct"></button></div></div>
       </div>
       <div class="compare-grid">
         <div class="card profile" id="cmp-profile-a"></div>
         <div class="card profile" id="cmp-profile-b"></div>
       </div>
+      <figure class="card">
+        <figcaption class="fig-head"><h2 id="cmp-slice-title"></h2><p class="fig-sub" data-i18n="world_slice_sub"></p></figcaption>
+        <div id="cmp-slice"></div>
+        <div class="legend-row" id="cmp-slice-legend"></div>
+        <p class="slice-text" id="cmp-slice-text"></p>
+      </figure>
       <div class="compare-grid">
         <figure class="card">
           <figcaption class="fig-head"><h2 data-i18n="composition">Fleet composition</h2><p class="fig-sub" id="cmp-comp-sub"></p></figcaption>

@@ -371,3 +371,9 @@ table.codebook td:first-child { font-family: var(--f-mono); font-size: 12px; whi
 }
 .copy-btn:hover { border-color: var(--accent); color: var(--ink); }
 .prose .cite { max-width: none; }
+.mode-ctl { flex: 0 0 auto; }
+.compare-pick .mode-ctl { flex: 0 0 auto; }
+.seg.small button[aria-pressed="true"] { color: #fff; }
+.slice-text { margin: 10px 0 0; color: var(--ink-2); max-width: 80ch; }
+.slice-text strong { color: var(--ink); }
+.slice-seg { cursor: default; }

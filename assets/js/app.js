@@ -77,6 +77,7 @@
     topN: 10,
     evo: [2, 200, 365, 710, 740, 220],
     evoLog: false,
+    mode: "abs",
     evoFrom: Y0,
     evoTo: Y1,
     cmpA: 710,
@@ -204,6 +205,7 @@
       const n = +b.dataset.n;
       b.textContent = n === 40 ? tr("all") : tr("top_n", { n });
     });
+    document.querySelectorAll(".mode-group button").forEach((b) => { b.textContent = tr(b.dataset.mode === "pct" ? "mode_pct" : "mode_abs"); });
     $("#table-search").placeholder = tr("search");
     $("#table-search").setAttribute("aria-label", tr("search"));
     $("#dl-csv").textContent = tr("download_csv");
@@ -644,13 +646,39 @@
     }
     return css(evoColor.get(cow));
   }
+  // World total of any indicator in a year (cached), used for "% of world total"
+  const worldCache = new Map();
+  function worldSum(m, y) {
+    const k = m.key + "|" + y;
+    if (!worldCache.has(k)) {
+      let t = 0;
+      for (const c of D.countries) { if (has(c, y)) { const v = m.value(c, y); if (v > 0) t += v; } }
+      worldCache.set(k, t);
+    }
+    return worldCache.get(k);
+  }
+  const pctOfWorld = (m, c, y) => { if (!has(c, y)) return null; const t = worldSum(m, y); return t ? (m.value(c, y) || 0) / t : 0; };
   function seriesFor(c, m) {
+    if (state.mode === "pct") return YEARS.map((y) => [y, pctOfWorld(m, c, y)]);
     return YEARS.map((y) => [y, has(c, y) ? m.value(c, y) : null]);
+  }
+  const modeKind = (m) => (state.mode === "pct" ? "pct" : m.kind);
+  function chartTitles(titleEl, subEl, m) {
+    if (state.mode === "pct" && m.key !== "share") {
+      titleEl.textContent = tr("pct_title", { measure: mname(m.key) });
+      subEl.textContent = tr("pct_sub");
+    } else {
+      titleEl.textContent = tr("over_time", { measure: mname(m.key) });
+      subEl.textContent = mdesc(m.key);
+    }
+  }
+  function syncModeButtons() {
+    document.querySelectorAll(".mode-group button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === state.mode)));
   }
   function renderEvolution() {
     const m = M[state.measure];
-    $("#evo-title").textContent = tr("over_time", { measure: mname(m.key) });
-    $("#evo-sub").textContent = mdesc(m.key);
+    chartTitles($("#evo-title"), $("#evo-sub"), m);
+    syncModeButtons();
     const series = state.evo.map((cow) => C.get(cow)).filter(Boolean).map((c) => ({ name: cname(c), color: colorForEvo(c.cow), values: seriesFor(c, m), cow: c.cow }));
     $("#evo-chips").replaceChildren(...series.map((s) => {
       const btn = el("button", { type: "button", "aria-label": tr("remove") + " " + s.name, text: "×" });
@@ -659,7 +687,7 @@
     }));
     $("#evo-log").checked = state.evoLog;
     const from = Math.min(state.evoFrom, state.evoTo - 1), to = Math.max(state.evoTo, state.evoFrom + 1);
-    lineChart($("#evolution"), { series, kind: m.kind, log: state.evoLog, xDomain: [from, to], marker: state.year, legend: $("#evo-legend"), endLabels: true });
+    lineChart($("#evolution"), { series, kind: modeKind(m), log: state.evoLog, xDomain: [from, to], marker: state.year, legend: $("#evo-legend"), endLabels: true });
   }
 
   /* ---------- COMPARE ---------- */
@@ -688,10 +716,15 @@
     const mid = narrow ? 112 : 170;
     const rowH = 30, top = 6;
     const h = top + COMP.length * rowH + 6;
-    const va = COMP.map((k) => (has(a, y) ? M[k].value(a, y) : 0) || 0);
-    const vb = COMP.map((k) => (has(b, y) ? M[k].value(b, y) : 0) || 0);
+    const pct = state.mode === "pct";
+    const abs = (c) => COMP.map((k) => (has(c, y) ? M[k].value(c, y) : 0) || 0);
+    const aa = abs(a), ab = abs(b);
+    const share = (vals) => vals.map((v, i) => { const t = worldSum(M[COMP[i]], y); return t ? v / t : 0; });
+    const va = pct ? share(aa) : aa, vb = pct ? share(ab) : ab;
+    const show = (v) => (pct ? NFP.format(v) : NF0.format(v));
+    const tipVal = (v, n) => (pct ? `${NFP.format(v)} (${NF0.format(n)})` : NF0.format(v));
     const half = (w - mid) / 2;
-    const x = d3.scaleLinear().domain([0, d3.max([...va, ...vb]) || 1]).range([0, half - 34]);
+    const x = d3.scaleLinear().domain([0, d3.max([...va, ...vb]) || 1]).range([0, half - (pct ? 50 : 34)]);
     const svg = d3.select(host).html("").append("svg").attr("viewBox", `0 0 ${w} ${h}`).attr("width", "100%").attr("height", h);
     const ca = css("--s1"), cb = css("--s2");
     COMP.forEach((k, i) => {
@@ -701,11 +734,11 @@
       g.append("text").attr("x", w / 2).attr("y", cy).attr("dy", "0.35em").attr("text-anchor", "middle").attr("class", "bar-label")
         .style("font-size", narrow ? "11px" : "12px").text(shortName(k, narrow));
       const wa = va[i] ? Math.max(3, x(va[i])) : 0, wb = vb[i] ? Math.max(3, x(vb[i])) : 0;
-      const tipFn = (e) => showTip(e, { title: mname(k), sub: String(y), rows: [{ color: ca, name: cname(a), value: NF0.format(va[i]) }, { color: cb, name: cname(b), value: NF0.format(vb[i]) }] });
+      const tipFn = (e) => showTip(e, { title: mname(k), sub: String(y), rows: [{ color: ca, name: cname(a), value: tipVal(va[i], aa[i]) }, { color: cb, name: cname(b), value: tipVal(vb[i], ab[i]) }] });
       g.append("rect").attr("x", half - wa).attr("y", cy - 8).attr("width", wa).attr("height", 16).attr("rx", 3).attr("fill", ca).on("pointermove", tipFn).on("pointerleave", hideTip);
       g.append("rect").attr("x", half + mid).attr("y", cy - 8).attr("width", wb).attr("height", 16).attr("rx", 3).attr("fill", cb).on("pointermove", tipFn).on("pointerleave", hideTip);
-      g.append("text").attr("class", "bar-value").attr("x", half - wa - 5).attr("y", cy).attr("dy", "0.35em").attr("text-anchor", "end").text(NF0.format(va[i]));
-      g.append("text").attr("class", "bar-value").attr("x", half + mid + wb + 5).attr("y", cy).attr("dy", "0.35em").text(NF0.format(vb[i]));
+      g.append("text").attr("class", "bar-value").attr("x", half - wa - 5).attr("y", cy).attr("dy", "0.35em").attr("text-anchor", "end").text(show(va[i]));
+      g.append("text").attr("class", "bar-value").attr("x", half + mid + wb + 5).attr("y", cy).attr("dy", "0.35em").text(show(vb[i]));
       g.append("rect").attr("x", 0).attr("y", cy - rowH / 2).attr("width", w).attr("height", rowH).attr("fill", "transparent").lower()
         .on("pointermove", tipFn).on("pointerleave", hideTip);
     });
@@ -724,16 +757,66 @@
     $("#cmp-a").value = String(state.cmpA); $("#cmp-b").value = String(state.cmpB);
     profile($("#cmp-profile-a"), a, "--s1");
     profile($("#cmp-profile-b"), b, "--s2");
-    $("#cmp-comp-sub").textContent = tr("composition_note", { year: state.year });
+    syncModeButtons();
+    worldSlice(a, b);
+    $("#cmp-comp-sub").textContent = tr(state.mode === "pct" ? "composition_pct_note" : "composition_note", { year: state.year });
     butterfly($("#cmp-butterfly"), a, b);
     const m = M[state.measure];
-    $("#cmp-line-title").textContent = tr("over_time", { measure: mname(m.key) });
-    $("#cmp-line-sub").textContent = mdesc(m.key);
+    chartTitles($("#cmp-line-title"), $("#cmp-line-sub"), m);
     const first = Math.min(a.y[0], b.y[0]);
     lineChart($("#cmp-line"), {
       series: [{ name: cname(a), color: css("--s1"), values: seriesFor(a, m) }, { name: cname(b), color: css("--s2"), values: seriesFor(b, m) }],
-      kind: m.kind, log: false, xDomain: [first, Y1], marker: state.year, legend: $("#cmp-legend"), endLabels: true, height: 300,
+      kind: modeKind(m), log: false, xDomain: [first, Y1], marker: state.year, legend: $("#cmp-legend"), endLabels: true, height: 300,
     });
+  }
+
+  // One 100% bar: navy A, navy B and the rest of the world's tonnage
+  function worldSlice(a, b) {
+    const y = state.year, m = M.share;
+    const sa = has(a, y) ? m.value(a, y) : 0, sb = has(b, y) ? m.value(b, y) : 0;
+    const rest = Math.max(0, 1 - sa - sb);
+    $("#cmp-slice-title").textContent = tr("world_slice", { year: y });
+    const host = $("#cmp-slice");
+    const w = host.clientWidth || 700, h = 34, gap = 2;
+    const segs = [
+      { name: cname(a), v: sa, color: css("--s1"), ton: has(a, y) ? tonTotal(a, y) : 0 },
+      { name: cname(b), v: sb, color: css("--s2"), ton: has(b, y) ? tonTotal(b, y) : 0 },
+      { name: tr("rest_world"), v: rest, color: css("--land"), ton: sysTotal.get(y) * rest },
+    ];
+    const svg = d3.select(host).html("").append("svg").attr("viewBox", `0 0 ${w} ${h}`).attr("width", "100%").attr("height", h).attr("role", "img");
+    let x0 = 0;
+    for (const sg of segs) {
+      const sw = sg.v * w;
+      if (sw > 0) {
+        const r = svg.append("rect").attr("class", "slice-seg").attr("x", x0).attr("y", 0).attr("height", h).attr("rx", 3)
+          .attr("width", Math.max(1, sw - (sg === segs[2] ? 0 : gap))).attr("fill", sg.color);
+        r.on("pointermove", (e) => showTip(e, { title: sg.name, big: NFP.format(sg.v), sub: [fmt("ton", sg.ton) + " · " + y] })).on("pointerleave", hideTip);
+        if (sw > 64) {
+          svg.append("text").attr("x", x0 + 8).attr("y", h / 2).attr("dy", "0.35em").attr("pointer-events", "none")
+            .style("fill", sg === segs[2] ? css("--ink-2") : "#fff").style("font", "500 13px " + css("--f-mono")).text(NFP.format(sg.v));
+        }
+      }
+      x0 += sw;
+    }
+    $("#cmp-slice-legend").replaceChildren(...segs.map((sg) => el("span", { class: "legend-item" },
+      el("span", { class: "legend-rect", style: "background:" + sg.color }), `${sg.name} · ${NFP.format(sg.v)}`)));
+    const p = $("#cmp-slice-text");
+    const strongs = (tpl, vars) => {
+      const parts = T()[tpl].split(/(\{\w+\})/);
+      const frag = [];
+      for (const part of parts) { const mm = part.match(/^\{(\w+)\}$/); frag.push(mm ? el("strong", { text: vars[mm[1]] }) : part); }
+      return frag;
+    };
+    if (!has(a, y) || !has(b, y)) {
+      const who = !has(a, y) ? cname(a) : cname(b);
+      p.replaceChildren(...strongs("slice_one", { who, year: String(y) }));
+      return;
+    }
+    const [hi, lo] = sa >= sb ? [segs[0], segs[1]] : [segs[1], segs[0]];
+    const gapPP = NF1.format(Math.abs(sa - sb) * 100);
+    const ratio = lo.v > 0 ? NF1.format(hi.v / lo.v) : "∞";
+    p.replaceChildren(...strongs("slice_gap", { gap: gapPP, lead: hi.name, ratio, other: lo.name }), " ",
+      ...strongs("slice_hist", { sum: NFP.format(sa + sb) }));
   }
 
   /* ---------- SYSTEM ---------- */
@@ -934,6 +1017,9 @@
       state.evo.push(v); if (state.evo.length > 8) state.evo.shift();
       fillCountrySelects(); renderEvolution();
     });
+    document.querySelectorAll(".mode-group button").forEach((b) => b.addEventListener("click", () => {
+      state.mode = b.dataset.mode; render();
+    }));
     $("#evo-log").addEventListener("change", (e) => { state.evoLog = e.target.checked; renderEvolution(); });
     const range = () => {
       const f = +$("#evo-from").value, t = +$("#evo-to").value;
