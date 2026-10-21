@@ -47,6 +47,8 @@ Country names (EN/PT/ES) and the mapping of historical states to modern map poly
 
 ## Citation
 
-Crisher, Brian Benjamin, and Mark Souva. 2014. "Power at Sea: A Naval Power Dataset, 1865–2011." *International Interactions* 40(4): 602–629. Please also cite the v2.0 update.
+Dataset v2.0: Crisher, Brian Benjamin; Souva, Mark. *Power at Sea, version 2.0 (1865–2025)* [dataset]. Harvard Dataverse. https://doi.org/10.7910/DVN/CW50N0
+
+Original article: Crisher, Brian Benjamin, and Mark Souva. 2014. "Power at Sea: A Naval Power Dataset, 1865–2011." *International Interactions* 40(4): 602–629.
 
 Map boundaries: Natural Earth via [world-atlas](https://github.com/topojson/world-atlas). Charts: [d3.js](https://d3js.org).

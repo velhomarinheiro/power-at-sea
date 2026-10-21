@@ -210,8 +210,10 @@
     $("#dl-dta").textContent = tr("download_dta");
     $("#dl-pdf").textContent = tr("download_pdf");
     $("#method").replaceChildren(...T().method_text.map((p) => el("p", { text: p })));
-    $("#cite").textContent = tr("cite_text");
-    $("#foot-text").textContent = D.source + ". " + tr("built_with");
+    renderCitations();
+    $("#dl-doi").textContent = tr("dataverse");
+    $("#foot-text").replaceChildren("Crisher & Souva, Power at Sea v2.0 · ",
+      el("a", { href: CITE.doi, target: "_blank", rel: "noopener", text: "doi:10.7910/DVN/CW50N0" }), ". " + tr("built_with"));
     $("#map-note").textContent = tr("map_note");
     // codebook
     const li = { en: 1, pt: 2, es: 3 }[state.lang];
@@ -222,6 +224,25 @@
     fillCountrySelects();
     renderPresets();
     syncPlayLabel();
+  }
+
+  const CITE = window.PAS_CITE;
+  function citeBlock(label, text) {
+    // the DOI inside the reference becomes a link
+    const p = el("p", { class: "cite" });
+    const at = text.indexOf("https://doi.org/");
+    if (at >= 0) p.append(text.slice(0, at), el("a", { href: CITE.doi, target: "_blank", rel: "noopener", text: CITE.doi }), text.slice(at + CITE.doi.length));
+    else p.textContent = text;
+    const btn = el("button", { type: "button", class: "copy-btn", text: tr("copy") });
+    btn.addEventListener("click", () => {
+      const done = () => { btn.textContent = tr("copied"); setTimeout(() => { btn.textContent = tr("copy"); }, 1600); };
+      const fallback = () => { const r = document.createRange(); r.selectNodeContents(p); const s = getSelection(); s.removeAllRanges(); s.addRange(r); };
+      try { navigator.clipboard.writeText(text).then(done, fallback); } catch (e) { fallback(); }
+    });
+    return el("div", { class: "cite-item" }, el("div", { class: "cite-head" }, el("span", { class: "ctl-label", text: label }), btn), p);
+  }
+  function renderCitations() {
+    $("#cite").replaceChildren(el("p", { text: tr("cite_intro") }), citeBlock(tr("cite_v2_label"), CITE.v2), citeBlock(tr("cite_v1_label"), CITE.v1));
   }
 
   function sortedCountries() {

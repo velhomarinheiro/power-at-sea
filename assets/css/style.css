@@ -359,3 +359,15 @@ table.codebook td:first-child { font-family: var(--f-mono); font-size: 12px; whi
 }
 .panel { display: flex; flex-direction: column; gap: 16px; }
 .panel > .about-grid { margin-top: 0; }
+.cites { display: flex; flex-direction: column; gap: 12px; }
+.cites > p { margin: 0; }
+.cite-item { display: flex; flex-direction: column; gap: 4px; }
+.cite-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.cite { margin: 0; overflow-wrap: anywhere; }
+.cite a, .foot a { color: var(--accent); }
+.copy-btn {
+  border: 1px solid var(--rule); background: var(--surface); border-radius: var(--r);
+  padding: 3px 10px; font-size: 12px; cursor: pointer; color: var(--ink-2);
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--ink); }
+.prose .cite { max-width: none; }
