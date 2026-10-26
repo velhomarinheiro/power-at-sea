@@ -4,6 +4,10 @@ Interactive dashboard for the **Power at Sea** naval power dataset, version 2.0 
 
 Painel interativo da base **Power at Sea** v2.0 (Crisher 2026, a partir de Crisher & Souva 2014), com 80 marinhas de 1865 a 2025, em inglês, português e espanhol.
 
+![Power at Sea dashboard home page](docs/presentation/home-en.png)
+
+Presentation images (3840×2160, 16:9) in `docs/presentation/`: `home-pt.png`, `home-en.png`, `home-es.png`, `home-pt-dark.png`.
+
 ## Views
 
 | Tab | What it shows |
